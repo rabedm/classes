@@ -1,0 +1,68 @@
+name: Publish course sites
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ARE-ECN-115A-Economic-Development/did-lab/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ARE-ECN-115A-Economic-Development/did-lab
+        run: pnpm install --frozen-lockfile
+
+      - name: Build DiD Lab
+        working-directory: ARE-ECN-115A-Economic-Development/did-lab
+        run: pnpm run build
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site/ARE-ECN-115A-Economic-Development/did-lab
+          cp index.html _site/index.html
+          cp ARE-ECN-115A-Economic-Development/index.html _site/ARE-ECN-115A-Economic-Development/index.html
+          cp -R ARE-ECN-115A-Economic-Development/did-lab/dist/. _site/ARE-ECN-115A-Economic-Development/did-lab/
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
