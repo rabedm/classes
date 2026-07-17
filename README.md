@@ -1,6 +1,6 @@
 # Classes
 
-Course materials and interactive teaching resources.
+Undergraduate course materials and interactive teaching resources for the University of California, Davis.
 
 ## Courses
 

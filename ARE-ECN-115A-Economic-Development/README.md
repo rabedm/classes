@@ -1,6 +1,6 @@
 # ARE/ECN 115A — Economic Development
 
-Course projects and interactive teaching resources for ARE/ECN 115A.
+Course projects and interactive teaching resources for **ARE/ECN 115A — Economic Development**, an undergraduate course at the University of California, Davis.
 
 ## Difference-in-Differences Lab
 
