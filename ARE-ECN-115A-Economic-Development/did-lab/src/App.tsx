@@ -54,12 +54,12 @@ const CREDIT: Example = {
   after: "After Oct. 2010",
   outcome: "Non-agricultural casual daily wage (INR)",
   unit: "INR",
-  values: [190, 185, 184.2, 188.6],
-  range: [160, 210],
+  values: [180, 165.6, 195, 190],
+  range: [150, 205],
   deviationRange: [-20, 20],
   source: "https://doi.org/10.1093/qje/qjab016",
   sourceLabel: "Read the published article",
-  note: "Breza and Kinnan (2021), Table 5, estimate that exposure to the credit contraction reduced non-agricultural casual daily wages by 9.4 INR (about 5.1% of the comparison mean). The four displayed means are a teaching reconstruction chosen so that the two-period DiD equals the paper’s reported −9.4 INR estimate; they are not raw cell means from the paper.",
+  note: "Breza and Kinnan (2021), Table 5, estimate that exposure to the credit contraction reduced non-agricultural casual daily wages by 9.4 INR (about 5.1% of the comparison mean). These illustrative teaching values reproduce the paper’s reported −9.4 INR estimate and the trajectories used in the course diagram; they are not raw cell means from the paper.",
 };
 
 const ROADS: Example = {
@@ -74,12 +74,12 @@ const ROADS: Example = {
   after: "2006 (post)",
   outcome: "Households growing non-cereal crops",
   unit: "%",
-  values: [34, 62, 32, 34],
-  range: [20, 75],
+  values: [34, 64, 25, 29],
+  range: [15, 75],
   deviationRange: [-20, 20],
   source: "https://doi.org/10.1016/j.jdeveco.2021.102686",
   sourceLabel: "Read the published article",
-  note: "Shamdasani (2021) reports a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. The four displayed percentages are a teaching reconstruction chosen so that the two-period DiD equals the paper’s reported +26 percentage-point estimate; they are not raw cell means from the paper.",
+  note: "Shamdasani (2021) reports a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. These illustrative teaching values reproduce the paper’s reported +26-percentage-point estimate and the trajectories used in the course diagram; they are not raw cell means from the paper.",
 };
 
 const EXPLORE_EXAMPLES = [CARD, CREDIT, ROADS];
@@ -132,6 +132,11 @@ function fmt(value: number, unit: string) {
   return `${value.toFixed(digits)}${unit === "%" ? "%" : ""}`;
 }
 
+function fmtDifference(value: number, unit: string) {
+  const formatted = fmt(value, unit === "%" ? "" : unit);
+  return unit === "%" ? `${formatted} pp` : `${formatted} ${unit}`;
+}
+
 function BetaHat() {
   return <span className="beta-hat" role="img" aria-label="beta hat"><span aria-hidden="true">β</span></span>;
 }
@@ -171,7 +176,7 @@ function OutcomeGraph({
       <svg viewBox="0 0 620 350" role="img" aria-labelledby={`chart-${example.id}-title chart-${example.id}-desc`}>
         <title id={`chart-${example.id}-title`}>{example.title}</title>
         <desc id={`chart-${example.id}-desc`}>
-          {example.treated} changes from {t0} to {t1}; {example.comparison} changes from {c0} to {c1}. The difference-in-differences estimate is {fmt((t1 - t0) - (c1 - c0), example.unit)}.
+          {example.treated} changes from {t0} to {t1}; {example.comparison} changes from {c0} to {c1}. The difference-in-differences estimate is {fmtDifference((t1 - t0) - (c1 - c0), example.unit)}.
         </desc>
         {[0, 0.25, 0.5, 0.75, 1].map((p) => {
           const value = min + (max - min) * (1 - p);
@@ -218,7 +223,7 @@ function OutcomeGraph({
             <line x1="513" x2="531" y1={y(counterfactual)} y2={y(counterfactual)} />
             <text x="536" y={effectMidY - 3}>β</text>
             <path d={`M536 ${effectMidY - 15} L540 ${effectMidY - 18} L544 ${effectMidY - 15}`} className="svg-beta-hat" />
-            <text x="548" y={effectMidY - 3}>= {fmt((t1 - t0) - comparisonChange, example.unit)}</text>
+            <text x="548" y={effectMidY - 3}>= {fmtDifference((t1 - t0) - comparisonChange, example.unit)}</text>
             <text x="536" y={effectMidY + 11}>(DiD estimate)</text>
           </g>
         )}
@@ -389,9 +394,9 @@ function ExploreCases() {
 
         <aside className="controls-panel">
           <div className="live-results" aria-live="polite">
-            <div><span>DiD estimate</span><strong>{fmt(did, selected.unit)}</strong></div>
-            <div><span>Effect implied by selected counterfactual</span><strong>{fmt(trueEffect, selected.unit)}</strong></div>
-            <div><span>Bias</span><strong>{fmt(bias, selected.unit)}</strong></div>
+            <div><span>DiD estimate</span><strong>{fmtDifference(did, selected.unit)}</strong></div>
+            <div><span>Effect implied by selected counterfactual</span><strong>{fmtDifference(trueEffect, selected.unit)}</strong></div>
+            <div><span>Bias</span><strong>{fmtDifference(bias, selected.unit)}</strong></div>
           </div>
 
           <p className="control-heading">Move the four observed outcomes</p>
@@ -408,11 +413,11 @@ function ExploreCases() {
           ))}
 
           <label className="range-control assumption-control">
-            <span>Deviation from parallel trends<b>{fmt(trendDeviation, selected.unit)}</b></span>
+            <span>Deviation from parallel trends<b>{fmtDifference(trendDeviation, selected.unit)}</b></span>
             <input type="range" min={selected.deviationRange[0]} max={selected.deviationRange[1]} step={selected.unit === "%" ? 1 : 0.1} value={trendDeviation} onChange={(event) => setTrendDeviation(Number(event.target.value))} />
           </label>
           <div className={Math.abs(trendDeviation) < 0.051 ? "trend-status parallel" : "trend-status biased"}>
-            {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : `The parallel trends assumption is violated. The red counterfactual differs from the gold counterfactual by ${fmt(trendDeviation, selected.unit)}, so the DiD estimate differs from the selected policy effect by ${fmt(bias, selected.unit)}.`}
+            {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : `The parallel trends assumption is violated. The red counterfactual differs from the gold counterfactual by ${fmtDifference(trendDeviation, selected.unit)}, so the DiD estimate differs from the selected policy effect by ${fmtDifference(bias, selected.unit)}.`}
           </div>
           <p className="control-help">The gold line is the counterfactual under parallel trends. At zero deviation, the red line coincides with it. Changing any observed outcome moves both lines together; moving this red control separates them.</p>
           <button className="button secondary full" onClick={reset}>Reset this example</button>
