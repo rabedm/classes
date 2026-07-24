@@ -31,13 +31,14 @@ nav { display: flex; gap: 28px; }
 nav a { color: var(--muted); text-decoration: none; font-size: .86rem; font-weight: 700; }
 nav a:hover { color: var(--ink); }
 
-.hero { min-height: 650px; padding: 96px 7vw 80px; display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: 7vw; align-items: center; overflow: hidden; }
+.hero { min-height: 650px; padding: 96px 7vw 80px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr); gap: 5vw; align-items: center; overflow: hidden; }
+.hero-copy { min-width: 0; }
 .hero h1 { font: 700 clamp(3.7rem, 7vw, 7.4rem)/.88 Georgia, "Times New Roman", serif; letter-spacing: -.06em; margin: 18px 0 28px; max-width: 780px; }
 .eyebrow, .case-eyebrow { color: var(--orange-dark); font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
 .hero-intro { font: 400 1.23rem/1.65 Georgia, serif; max-width: 680px; margin: 0 0 34px; }
 .hero-intro p { margin: 0; }
 .hero-equation { margin-top: 16px !important; font-size: .95rem; line-height: 1.5; color: var(--teal-dark); font-weight: 700; }
-.hero-formula { max-width: 100%; margin: 0 0 34px; padding: .55em 0 .2em; color: var(--teal-dark); font: 700 clamp(.72rem, .86vw, 1rem)/1.75 Georgia, serif; white-space: nowrap; overflow-x: auto; overflow-y: hidden; }
+.hero-formula { width: 100%; max-width: 100%; margin: 0 0 34px; padding: .55em 0 .2em; color: var(--teal-dark); font: 700 clamp(.68rem, .8vw, .95rem)/1.75 Georgia, serif; white-space: nowrap; overflow: visible; }
 .hero-formula > span { display: inline; }
 .beta-hat, .formula-card .beta-hat { position: relative; display: inline-block; min-width: .7em; line-height: 1; text-align: center; margin: 0; color: inherit; font-size: inherit; }
 .beta-hat::before, .beta-hat::after { content: ""; position: absolute; top: -.3em; width: .42em; height: 1.5px; background: currentColor; }
@@ -159,7 +160,7 @@ footer { padding: 44px 7vw; display: grid; grid-template-columns: 1fr auto; gap:
 }
 
 @media (max-width: 760px) {
-  .site-header { padding: 0 20px; }.site-header nav { display: none; }.course-code { font-size: .56rem; }.hero { min-height: 0; padding: 62px 22px 52px; }.hero h1 { font-size: clamp(3.15rem, 16vw, 5rem); }.hero-diagram { min-height: 310px; box-shadow: 9px 9px 0 var(--paper-deep); }.study-background, .why-did { padding: 52px 22px; }.background-variables, .why-copy { grid-template-columns: 1fr; }.why-copy { gap: 18px; }
+  .site-header { padding: 0 20px; }.site-header nav { display: none; }.course-code { font-size: .56rem; }.hero { min-height: 0; padding: 62px 22px 52px; }.hero h1 { font-size: clamp(2.5rem, 12.5vw, 4.6rem); }.hero-formula { font-size: clamp(.4rem, 2vw, .7rem); letter-spacing: -.02em; }.hero-diagram { min-height: 310px; box-shadow: 9px 9px 0 var(--paper-deep); }.study-background, .why-did { padding: 52px 22px; }.background-variables, .why-copy { grid-template-columns: 1fr; }.why-copy { gap: 18px; }
   .thesis-strip { grid-template-columns: 1fr; padding: 26px 22px; gap: 8px; }.lesson-section { padding: 72px 22px; }.section-heading { align-items: start; flex-direction: column; margin-bottom: 34px; }.progress-step:not(:last-child) { margin-right: 18px; }.progress-step:not(:last-child)::after { width: 18px; }.study-setup { grid-template-columns: 1fr; }.chart-shell { padding: 6px; }.chart-shell svg { min-height: 260px; }.teaching-panel, .controls-panel { padding: 25px; }.estimators { grid-template-columns: 1fr; }.case-picker { grid-template-columns: 1fr; }.live-results { grid-template-columns: 1fr; }.live-results span { min-height: 0; }.selection-rule { grid-template-columns: 1fr; gap: 8px; }.quiz-block { grid-template-columns: 1fr; }.comparison-table { border: 0; }.comparison-row { grid-template-columns: 1fr; border: 1px solid var(--line); margin-bottom: 14px; }.comparison-row > div { border: 0 !important; padding: 12px 16px; }.comparison-row > div:not(:first-child)::before { content: attr(data-label); display: block; color: var(--orange-dark); font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }.header-row { display: none; } footer { grid-template-columns: 1fr; padding: 36px 22px; }
 }
 

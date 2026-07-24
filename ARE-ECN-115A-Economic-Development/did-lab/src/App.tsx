@@ -212,7 +212,7 @@ function GuidedLesson() {
             <div><span>Outcome</span><strong>Employment per restaurant</strong><small><i>Y</i><sub>it</sub> = full-time-equivalent employment in restaurant <i>i</i> at time <i>t</i></small></div>
           </div>
           <OutcomeGraph example={CARD} values={CARD.values} reveal={step} />
-          <p className="source-note">{CARD.note} <a href={CARD.source} target="_blank" rel="noreferrer">{CARD.sourceLabel} ↗</a></p>
+          <p className="source-note">{CARD.note}</p>
         </div>
 
         <aside className="teaching-panel" aria-live="polite">
