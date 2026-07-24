@@ -417,7 +417,7 @@ export default function Home() {
   return (
     <main data-version="17">
       <header className="site-header">
-        <div className="brand-group"><a className="brand" href="#top" aria-label="DiD Lab home"><span className="brand-mark">ΔΔ</span><span className="brand-title">DiD Lab</span></a><span className="course-code">ARE/ECN 115A</span></div>
+        <div className="brand-group"><a className="brand" href="#top" aria-label="DiD Lab home"><span className="brand-mark">ΔΔ</span><span className="brand-title">DiD Lab</span></a><span className="course-code">For ARE/ECN 115A</span></div>
         <nav aria-label="Lesson navigation">
           <a href="#guided">Guided case</a>
           <a href="#explore">Explore</a>
@@ -490,7 +490,7 @@ export default function Home() {
       <Concepts />
 
       <footer>
-        <div className="footer-brand"><span className="brand-mark">ΔΔ</span><strong>DiD Lab</strong><span className="course-code">ARE/ECN 115A</span></div>
+        <div className="footer-brand"><span className="brand-mark">ΔΔ</span><strong>DiD Lab</strong><span className="course-code">For ARE/ECN 115A</span></div>
         <a href="#top">Back to top ↑</a>
       </footer>
     </main>
