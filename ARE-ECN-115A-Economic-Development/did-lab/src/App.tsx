@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 
 type Example = {
   id: string;
+  tabLabel: string;
+  exploreTitle: string;
   title: string;
   policy: string;
   treated: string;
@@ -14,6 +16,7 @@ type Example = {
   unit: string;
   values: [number, number, number, number];
   range: [number, number];
+  deviationRange: [number, number];
   source: string;
   sourceLabel: string;
   note: string;
@@ -21,6 +24,8 @@ type Example = {
 
 const CARD: Example = {
   id: "card-krueger",
+  tabLabel: "Minimum wage",
+  exploreTitle: "Now experiment with the minimum-wage example",
   title: "Did raising New Jersey’s minimum wage reduce fast-food employment?",
   policy: "New Jersey raised its minimum wage from $4.25 to $5.05 on April 1, 1992.",
   treated: "New Jersey",
@@ -31,10 +36,53 @@ const CARD: Example = {
   unit: "FTE",
   values: [20.4, 21.0, 23.3, 21.2],
   range: [18, 23.6],
+  deviationRange: [-4, 4],
   source: "https://www.jstor.org/stable/2118030",
   sourceLabel: "Read the published article",
   note: "The graph uses the paper’s rounded state means. The paper reports a simple DiD of 2.76 FTE employees.",
 };
+
+const CREDIT: Example = {
+  id: "breza-kinnan",
+  tabLabel: "Credit markets",
+  exploreTitle: "Now experiment with the credit-market example",
+  title: "How did the loss of microfinance credit affect non-agricultural rural wages?",
+  policy: "After Andhra Pradesh halted microfinance activity in October 2010, exposed lenders sharply reduced credit in other districts where they operated.",
+  treated: "Districts served by affected lenders",
+  comparison: "Districts served by unaffected lenders",
+  before: "Before Oct. 2010",
+  after: "After Oct. 2010",
+  outcome: "Non-agricultural casual daily wage (INR)",
+  unit: "INR",
+  values: [190, 185, 184.2, 188.6],
+  range: [160, 210],
+  deviationRange: [-20, 20],
+  source: "https://doi.org/10.1093/qje/qjab016",
+  sourceLabel: "Read the published article",
+  note: "Breza and Kinnan (2021), Table 5, estimate that exposure to the credit contraction reduced non-agricultural casual daily wages by 9.4 INR (about 5.1% of the comparison mean). The four displayed means are a teaching reconstruction chosen so that the two-period DiD equals the paper’s reported −9.4 INR estimate; they are not raw cell means from the paper.",
+};
+
+const ROADS: Example = {
+  id: "shamdasani",
+  tabLabel: "Rural roads",
+  exploreTitle: "Now experiment with the infrastructure example",
+  title: "How did all-weather rural roads change crop choice?",
+  policy: "India’s rural-road program began in 2000. The study compares households in villages that received an all-weather road by 2006 with eligible villages where roads had not yet been built.",
+  treated: "Villages receiving roads by 2006",
+  comparison: "Eligible villages without roads by 2006",
+  before: "1999 (pre)",
+  after: "2006 (post)",
+  outcome: "Households growing non-cereal crops",
+  unit: "%",
+  values: [34, 62, 32, 34],
+  range: [20, 75],
+  deviationRange: [-20, 20],
+  source: "https://doi.org/10.1016/j.jdeveco.2021.102686",
+  sourceLabel: "Read the published article",
+  note: "Shamdasani (2021) reports a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. The four displayed percentages are a teaching reconstruction chosen so that the two-period DiD equals the paper’s reported +26 percentage-point estimate; they are not raw cell means from the paper.",
+};
+
+const EXPLORE_EXAMPLES = [CARD, CREDIT, ROADS];
 
 const STEPS = [
   {
@@ -275,12 +323,19 @@ function GuidedLesson() {
 }
 
 function ExploreCases() {
-  const selected = CARD;
+  const [selectedId, setSelectedId] = useState(CARD.id);
+  const selected = EXPLORE_EXAMPLES.find((example) => example.id === selectedId) ?? CARD;
   const [values, setValues] = useState<[number, number, number, number]>(CARD.values);
   const [trendDeviation, setTrendDeviation] = useState(0);
 
   const reset = () => {
-    setValues(CARD.values);
+    setValues(selected.values);
+    setTrendDeviation(0);
+  };
+
+  const selectExample = (example: Example) => {
+    setSelectedId(example.id);
+    setValues(example.values);
     setTrendDeviation(0);
   };
 
@@ -301,17 +356,35 @@ function ExploreCases() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">02 · Explore</p>
-          <h2 id="explore-title">Now experiment with the minimum-wage example</h2>
-          <p className="section-intro">Move the four observed employment outcomes, then introduce a deviation from parallel trends to see how it changes the counterfactual and the resulting estimate.</p>
+          <h2 id="explore-title">{selected.exploreTitle}</h2>
+          <p className="section-intro">Choose a study, move its four observed outcomes, and then introduce a deviation from parallel trends to see how the counterfactual and the resulting estimate change.</p>
         </div>
       </div>
 
-      <div className="explore-grid">
+      <div className="case-picker" role="tablist" aria-label="Choose a difference-in-differences example">
+        {EXPLORE_EXAMPLES.map((example, index) => (
+          <button
+            key={example.id}
+            type="button"
+            role="tab"
+            aria-selected={selected.id === example.id}
+            aria-controls="explore-case"
+            className={selected.id === example.id ? "case-choice selected" : "case-choice"}
+            onClick={() => selectExample(example)}
+          >
+            <span>Example {index + 1}</span>
+            <strong>{example.tabLabel}</strong>
+          </button>
+        ))}
+      </div>
+
+      <div id="explore-case" className="explore-grid" role="tabpanel">
         <div>
-          <h3>How does the DiD estimate change?</h3>
-          <p className="policy-copy">The orange and green paths show observed outcomes. The <strong>(unobserved) gold line</strong> shows the counterfactual under parallel trends: New Jersey’s baseline plus Pennsylvania’s change. Move the red control to examine what happens when the parallel trends assumption is violated.</p>
+          <h3>{selected.title}</h3>
+          <p className="policy-copy">{selected.policy}</p>
+          <p className="policy-copy">The orange and green paths show observed outcomes. The <strong>(unobserved) gold line</strong> shows the counterfactual under parallel trends: the treated group’s baseline plus the comparison group’s change. Move the red control to examine what happens when the parallel trends assumption is violated.</p>
           <OutcomeGraph example={selected} values={values} untreatedChange={untreatedChange} />
-          <p className="source-note">The default values reproduce the paper’s rounded state means. Adjusted values are teaching simulations, not alternative estimates from the paper.</p>
+          <p className="source-note">{selected.note} <a href={selected.source} target="_blank" rel="noreferrer">{selected.sourceLabel}</a>.</p>
         </div>
 
         <aside className="controls-panel">
@@ -336,13 +409,13 @@ function ExploreCases() {
 
           <label className="range-control assumption-control">
             <span>Deviation from parallel trends<b>{fmt(trendDeviation, selected.unit)}</b></span>
-            <input type="range" min="-4" max="4" step="0.1" value={trendDeviation} onChange={(event) => setTrendDeviation(Number(event.target.value))} />
+            <input type="range" min={selected.deviationRange[0]} max={selected.deviationRange[1]} step={selected.unit === "%" ? 1 : 0.1} value={trendDeviation} onChange={(event) => setTrendDeviation(Number(event.target.value))} />
           </label>
           <div className={Math.abs(trendDeviation) < 0.051 ? "trend-status parallel" : "trend-status biased"}>
             {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : `The parallel trends assumption is violated. The red counterfactual differs from the gold counterfactual by ${fmt(trendDeviation, selected.unit)}, so the DiD estimate differs from the selected policy effect by ${fmt(bias, selected.unit)}.`}
           </div>
           <p className="control-help">The gold line is the counterfactual under parallel trends. At zero deviation, the red line coincides with it. Changing any observed outcome moves both lines together; moving this red control separates them.</p>
-          <button className="button secondary full" onClick={reset}>Reset the minimum-wage example</button>
+          <button className="button secondary full" onClick={reset}>Reset this example</button>
         </aside>
       </div>
     </section>
