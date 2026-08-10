@@ -56,7 +56,7 @@ const CREDIT: Example = {
   deviationRange: [-20, 20],
   source: "https://doi.org/10.1093/qje/qjab016",
   sourceLabel: "Read the published article",
-  note: "Breza and Kinnan (2021), Table 5, estimate that exposure to the credit contraction reduced non-agricultural casual daily wages by 9.4 INR (about 5.1% of the comparison mean). These illustrative teaching values reproduce the paper’s reported −9.4 INR estimate and the trajectories used in the course diagram; they are not raw cell means from the paper.",
+  note: "Breza and Kinnan (2021), Table 5, estimate that exposure to the credit contraction reduced non-agricultural casual daily wages by 9.4 INR (about 5.1% of the comparison mean). The four values shown here are simplified examples chosen to reproduce the paper’s reported −9.4 INR estimate and match the course diagram. The paper does not report these four group averages.",
 };
 
 const ROADS: Example = {
@@ -75,7 +75,7 @@ const ROADS: Example = {
   deviationRange: [-20, 20],
   source: "https://doi.org/10.1016/j.jdeveco.2021.102686",
   sourceLabel: "Read the published article",
-  note: "Shamdasani (2021) reports a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. These illustrative teaching values reproduce the paper’s reported +26-percentage-point estimate and the trajectories used in the course diagram; they are not raw cell means from the paper.",
+  note: "Shamdasani (2021), Table 4, column 1, estimates a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. The four values shown here are simplified examples chosen to reproduce the paper’s reported +26-percentage-point estimate and match the course diagram. The paper does not report these four group averages.",
 };
 
 const EXPLORE_EXAMPLES = [CARD, CREDIT, ROADS];
