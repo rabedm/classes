@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 type Example = {
   id: string;
   tabLabel: string;
-  exploreTitle: string;
   title: string;
   policy: string;
   treated: string;
@@ -25,7 +24,6 @@ type Example = {
 const CARD: Example = {
   id: "card-krueger",
   tabLabel: "Minimum wage",
-  exploreTitle: "Now experiment with the minimum-wage example",
   title: "Did raising New Jersey’s minimum wage reduce fast-food employment?",
   policy: "New Jersey raised its minimum wage from $4.25 to $5.05 on April 1, 1992.",
   treated: "New Jersey",
@@ -45,7 +43,6 @@ const CARD: Example = {
 const CREDIT: Example = {
   id: "breza-kinnan",
   tabLabel: "Credit markets",
-  exploreTitle: "Now experiment with the credit-market example",
   title: "How did the loss of microfinance credit affect non-agricultural rural wages?",
   policy: "After Andhra Pradesh halted microfinance activity in October 2010, exposed lenders sharply reduced credit in other districts where they operated.",
   treated: "Districts served by affected lenders",
@@ -65,7 +62,6 @@ const CREDIT: Example = {
 const ROADS: Example = {
   id: "shamdasani",
   tabLabel: "Rural roads",
-  exploreTitle: "Now experiment with the infrastructure example",
   title: "How did all-weather rural roads change crop choice?",
   policy: "India’s rural-road program began in 2000. The study compares households in villages that received an all-weather road by 2006 with eligible villages where roads had not yet been built.",
   treated: "Villages receiving roads by 2006",
@@ -361,8 +357,8 @@ function ExploreCases() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">02 · Explore</p>
-          <h2 id="explore-title">{selected.exploreTitle}</h2>
-          <p className="section-intro">Choose a study, move its four observed outcomes, and then introduce a deviation from parallel trends to see how the counterfactual and the resulting estimate change.</p>
+          <h2 id="explore-title">Explore DiD research examples</h2>
+          <p className="section-intro">Revisit the minimum-wage example or explore the credit-market and rural-road studies covered in class. Move each study’s four observed outcomes, then introduce a deviation from parallel trends to see how the counterfactual and the resulting estimate change.</p>
         </div>
       </div>
 
@@ -432,7 +428,7 @@ function Concepts() {
   const questions = useMemo(() => [
     { statement: "Treated and comparison groups must begin at the same outcome level.", answer: false, why: "Different levels are allowed. DiD needs a credible claim about untreated changes." },
     { statement: "Similar pre-treatment trends prove what the post-treatment counterfactual would have been.", answer: false, why: "They can make the parallel trends assumption more plausible, but they cannot prove an unobserved post-treatment path." },
-    { statement: "A shock affecting only the treated group at the policy date can bias a DiD estimate.", answer: true, why: "Yes. DiD cannot distinguish the policy from another simultaneous shock affecting only the treated group." },
+    { statement: "A shock affecting only the treated group at the policy date can bias a DiD estimate.", answer: true, why: "DiD cannot distinguish the policy from another simultaneous shock affecting only the treated group." },
   ], []);
 
   return (
