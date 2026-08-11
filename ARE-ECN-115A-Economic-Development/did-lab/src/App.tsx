@@ -75,7 +75,7 @@ const ROADS: Example = {
   deviationRange: [-20, 20],
   source: "https://doi.org/10.1016/j.jdeveco.2021.102686",
   sourceLabel: "Read the published article",
-  note: "Shamdasani (2021), Table 4, column 1, estimates a 26-percentage-point increase in the share of remote households cultivating non-cereal crops. The four values shown here are simplified examples chosen to reproduce the paper’s reported +26-percentage-point estimate and match the course diagram. The paper does not report these four group averages.",
+  note: "Shamdasani (2021), Table 4, column 1, estimates that the share of remote households cultivating non-cereal crops increased by 26 percentage points. The four values shown here are simplified examples chosen to reproduce the paper’s reported increase of 26 percentage points and match the course diagram. The paper does not report these four group averages.",
 };
 
 const EXPLORE_EXAMPLES = [CARD, CREDIT, ROADS];
