@@ -409,11 +409,11 @@ function ExploreCases() {
           ))}
 
           <label className="range-control assumption-control">
-            <span>Deviation from parallel trends<b>{fmtDifference(trendDeviation, selected.unit)}</b></span>
+            <span>Deviation from parallel trends</span>
             <input type="range" min={selected.deviationRange[0]} max={selected.deviationRange[1]} step={selected.unit === "%" ? 1 : 0.1} value={trendDeviation} onChange={(event) => setTrendDeviation(Number(event.target.value))} />
           </label>
           <div className={Math.abs(trendDeviation) < 0.051 ? "trend-status parallel" : "trend-status biased"}>
-            {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : `The parallel trends assumption is violated. The red counterfactual differs from the gold counterfactual by ${fmtDifference(trendDeviation, selected.unit)}, so the DiD estimate differs from the selected policy effect by ${fmtDifference(bias, selected.unit)}.`}
+            {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : "The parallel trends assumption is violated. The red and gold counterfactuals no longer coincide, so the DiD estimate is biased."}
           </div>
           <p className="control-help">The gold line is the counterfactual under parallel trends. At zero deviation, the red line coincides with it. Changing any observed outcome moves both lines together; moving the deviation slider separates them.</p>
           <button className="button secondary full" onClick={reset}>Reset this example</button>
