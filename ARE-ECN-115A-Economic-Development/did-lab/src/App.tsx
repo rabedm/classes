@@ -383,7 +383,7 @@ function ExploreCases() {
         <div>
           <h3>{selected.title}</h3>
           <p className="policy-copy">{selected.policy}</p>
-          <p className="policy-copy">The orange and green paths show observed outcomes. The <strong>(unobserved) gold line</strong> shows the counterfactual under parallel trends: the treated group’s baseline plus the comparison group’s change. Move the red control to examine what happens when the parallel trends assumption is violated.</p>
+          <p className="policy-copy">The orange and green paths show observed outcomes. The <strong>(unobserved) gold line</strong> shows the counterfactual under parallel trends: the treated group’s baseline plus the comparison group’s change. Move the red “Deviation from parallel trends” slider to examine what happens when the parallel trends assumption is violated.</p>
           <OutcomeGraph example={selected} values={values} untreatedChange={untreatedChange} />
           <p className="source-note">{selected.note} <a href={selected.source} target="_blank" rel="noreferrer">{selected.sourceLabel}</a>.</p>
         </div>
@@ -415,7 +415,7 @@ function ExploreCases() {
           <div className={Math.abs(trendDeviation) < 0.051 ? "trend-status parallel" : "trend-status biased"}>
             {Math.abs(trendDeviation) < 0.051 ? "The parallel trends assumption holds: the two counterfactuals coincide, so the DiD estimate equals the selected policy effect." : `The parallel trends assumption is violated. The red counterfactual differs from the gold counterfactual by ${fmtDifference(trendDeviation, selected.unit)}, so the DiD estimate differs from the selected policy effect by ${fmtDifference(bias, selected.unit)}.`}
           </div>
-          <p className="control-help">The gold line is the counterfactual under parallel trends. At zero deviation, the red line coincides with it. Changing any observed outcome moves both lines together; moving this red control separates them.</p>
+          <p className="control-help">The gold line is the counterfactual under parallel trends. At zero deviation, the red line coincides with it. Changing any observed outcome moves both lines together; moving the deviation slider separates them.</p>
           <button className="button secondary full" onClick={reset}>Reset this example</button>
         </aside>
       </div>
