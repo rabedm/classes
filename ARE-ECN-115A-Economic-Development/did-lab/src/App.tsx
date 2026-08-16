@@ -281,11 +281,11 @@ function GuidedLesson() {
           {step === 7 && (
             <div className="formula-card expected-value-formula">
               <p>Difference in differences</p>
-              <div className="math-line">
-                <span><BetaHat /><sub>DiD</sub> = </span>
-                <span className="math-group">[E(Y<sub>i</sub><sup>post</sup> | D<sub>i</sub> = 1) − E(Y<sub>i</sub><sup>pre</sup> | D<sub>i</sub> = 1)]</span>
-                <span> − </span>
-                <span className="math-group">[E(Y<sub>i</sub><sup>post</sup> | D<sub>i</sub> = 0) − E(Y<sub>i</sub><sup>pre</sup> | D<sub>i</sub> = 0)]</span>
+              <div className="math-line stacked-did-formula">
+                <span className="did-formula-label"><BetaHat /><sub>DiD</sub> =</span>
+                <span className="math-group">[E(Y<sub>i1</sub><sup>post</sup> | D<sub>i</sub> = 1) − E(Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 1)]</span>
+                <span className="did-formula-operator">−</span>
+                <span className="math-group">[E(Y<sub>i0</sub><sup>post</sup> | D<sub>i</sub> = 0) − E(Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 0)]</span>
               </div>
               <strong>(21.0 − 20.4) − (21.2 − 23.3)</strong>
               <span>= 0.6 − (−2.1) = 2.7 FTE</span>
@@ -397,13 +397,13 @@ function ExploreCases() {
 
           <p className="control-heading">Move the four observed outcomes</p>
           {[
-            { label: `${selected.treated} · ${selected.before}`, period: "pre", treatment: 1 },
-            { label: `${selected.treated} · ${selected.after}`, period: "post", treatment: 1 },
-            { label: `${selected.comparison} · ${selected.before}`, period: "pre", treatment: 0 },
-            { label: `${selected.comparison} · ${selected.after}`, period: "post", treatment: 0 },
-          ].map(({ label, period, treatment }, index) => (
+            { label: `${selected.treated} · ${selected.before}`, period: "pre", treatment: 1, potentialOutcome: 0 },
+            { label: `${selected.treated} · ${selected.after}`, period: "post", treatment: 1, potentialOutcome: 1 },
+            { label: `${selected.comparison} · ${selected.before}`, period: "pre", treatment: 0, potentialOutcome: 0 },
+            { label: `${selected.comparison} · ${selected.after}`, period: "post", treatment: 0, potentialOutcome: 0 },
+          ].map(({ label, period, treatment, potentialOutcome }, index) => (
             <label className="range-control" key={label}>
-              <span className="control-label"><span>{label}<em>E[Y<sub>i</sub><sup>{period}</sup> | D<sub>i</sub> = {treatment}]</em></span><b>{fmt(values[index], selected.unit)}</b></span>
+              <span className="control-label"><span>{label}<em>E[Y<sub>i{potentialOutcome}</sub><sup>{period}</sup> | D<sub>i</sub> = {treatment}]</em></span><b>{fmt(values[index], selected.unit)}</b></span>
               <input type="range" min={selected.range[0]} max={selected.range[1]} step={selected.unit === "%" ? 1 : 0.1} value={values[index]} onChange={(event) => update(index, Number(event.target.value))} />
             </label>
           ))}
@@ -504,8 +504,8 @@ export default function Home() {
           <h1>Difference-in-Differences</h1>
           <div className="hero-formula" aria-label="Difference-in-differences expected-value formula">
             <span><BetaHat /><sub>DiD</sub> = </span>
-            <span>[E(Y<sub>i</sub><sup>post</sup> | D<sub>i</sub> = 1) − E(Y<sub>i</sub><sup>pre</sup> | D<sub>i</sub> = 1)]</span>
-            <span> − [E(Y<sub>i</sub><sup>post</sup> | D<sub>i</sub> = 0) − E(Y<sub>i</sub><sup>pre</sup> | D<sub>i</sub> = 0)]</span>
+            <span>[E(Y<sub>i1</sub><sup>post</sup> | D<sub>i</sub> = 1) − E(Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 1)]</span>
+            <span> − [E(Y<sub>i0</sub><sup>post</sup> | D<sub>i</sub> = 0) − E(Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 0)]</span>
           </div>
           <a className="button primary hero-button" href="#study-background">Begin with Card & Krueger (1994) <span>↓</span></a>
         </div>
@@ -534,11 +534,11 @@ export default function Home() {
           <h2 id="study-background-title">Did raising New Jersey’s minimum wage reduce fast-food employment?</h2>
         </div>
         <div className="study-background-copy">
-          <p>Card and Krueger studied New Jersey’s April 1992 minimum-wage increase. They compared employment in New Jersey fast-food restaurants with employment in neighboring Pennsylvania, where the minimum wage did not change. <strong>This example has exactly two time periods:</strong> Feb–Mar 1992 before the policy and Nov–Dec 1992 after the policy.</p>
+          <p>Card and Krueger studied New Jersey’s April 1992 minimum-wage increase. They compared employment in New Jersey fast-food restaurants with employment in neighboring Pennsylvania, where the minimum wage did not change. <strong>This basic DiD design has exactly two groups and two time periods:</strong> New Jersey restaurants are the treated group and Pennsylvania restaurants are the comparison group; Feb–Mar 1992 is the pre-policy period and Nov–Dec 1992 is the post-policy period.</p>
           <a className="button ghost study-article-link" href={CARD.source} target="_blank" rel="noreferrer">{CARD.sourceLabel} <span aria-hidden="true">↗</span></a>
           <div className="background-variables" aria-label="Study treatment and outcome">
             <div><span>Treatment indicator</span><strong><i>D</i><sub>i</sub> = 1</strong><p>Restaurant <i>i</i> is in New Jersey and was exposed to the wage increase. <i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants.</p></div>
-            <div><span>Outcome</span><strong><i>Y</i><sub>it</sub></strong><p>Full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>. In this measure, one part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
+            <div><span>Outcome</span><strong><i>Y</i><sub>it</sub></strong><p><i>Y</i><sub>it</sub> is the observed full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>. In the potential-outcomes notation used below, the 0 or 1 next to <i>i</i> indicates the treatment state—not the time period. Thus, New Jersey is observed as <i>Y</i><sub>i0</sub><sup>pre</sup> before the policy and <i>Y</i><sub>i1</sub><sup>post</sup> afterward, while Pennsylvania is observed under treatment state 0 in both periods. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
           </div>
         </div>
       </section>

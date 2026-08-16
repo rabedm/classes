@@ -137,6 +137,9 @@ nav a:hover { color: var(--ink); }
 .formula-card { border-left: 4px solid var(--mustard); background: #263632; padding: 18px; margin-top: 26px; }.formula-card p { color: var(--mustard); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 9px; }.formula-card strong { font-size: .95rem; display: block; }.formula-card span { color: #d6dcda; display: block; margin-top: 7px; font-size: .82rem; }
 .expected-value-formula .math-line { color: white; font: 600 .78rem/1.7 Georgia, serif; overflow-wrap: anywhere; margin-bottom: 14px; }
 .expected-value-formula .math-line > span { display: inline; margin: 0; color: white; font-size: inherit; }
+.expected-value-formula .stacked-did-formula { display: grid; grid-template-columns: max-content max-content; column-gap: .4em; row-gap: .25em; overflow-x: auto; overflow-wrap: normal; font-size: clamp(.56rem, .75vw, .78rem); }
+.expected-value-formula .stacked-did-formula > span { display: block; margin: 0; white-space: nowrap; }
+.expected-value-formula .did-formula-label, .expected-value-formula .did-formula-operator { text-align: right; }
 .expected-value-formula small { display: block; color: #aebbb6; line-height: 1.5; margin-top: 12px; }
 
 .estimators { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 48px; }
