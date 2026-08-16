@@ -44,9 +44,11 @@ jobs:
       - name: Assemble Pages site
         run: |
           mkdir -p _site/ARE-ECN-115A-Economic-Development/did-lab
+          mkdir -p _site/ARE-ECN-115A-Economic-Development/rct-lab
           cp index.html _site/index.html
           cp ARE-ECN-115A-Economic-Development/index.html _site/ARE-ECN-115A-Economic-Development/index.html
           cp -R ARE-ECN-115A-Economic-Development/did-lab/dist/. _site/ARE-ECN-115A-Economic-Development/did-lab/
+          cp -R ARE-ECN-115A-Economic-Development/rct-lab/. _site/ARE-ECN-115A-Economic-Development/rct-lab/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
