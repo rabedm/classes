@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Example = {
   id: string;
@@ -28,8 +28,8 @@ const CARD: Example = {
   policy: "New Jersey raised its minimum wage from $4.25 to $5.05 on April 1, 1992.",
   treated: "New Jersey",
   comparison: "Pennsylvania",
-  before: "Feb–Mar 1992",
-  after: "Nov–Dec 1992",
+  before: "Feb–Mar 1992 (Pre)",
+  after: "Nov–Dec 1992 (Post)",
   outcome: "FTE employees per restaurant",
   unit: "FTE",
   values: [20.4, 21.0, 23.3, 21.2],
@@ -47,8 +47,8 @@ const CREDIT: Example = {
   policy: "After Andhra Pradesh halted microfinance activity in October 2010, exposed lenders sharply reduced credit in other districts where they operated.",
   treated: "Districts served by affected lenders",
   comparison: "Districts served by unaffected lenders",
-  before: "Before Oct. 2010",
-  after: "After Oct. 2010",
+  before: "Before Oct. 2010 (Pre)",
+  after: "After Oct. 2010 (Post)",
   outcome: "Non-agricultural casual daily wage (INR)",
   unit: "INR",
   values: [180, 165.6, 195, 190],
@@ -66,8 +66,8 @@ const ROADS: Example = {
   policy: "India’s rural-road program began in 2000. The study compares households in villages that received an all-weather road by 2006 with eligible villages where roads had not yet been built.",
   treated: "Villages receiving roads by 2006",
   comparison: "Eligible villages without roads by 2006",
-  before: "1999 (pre)",
-  after: "2006 (post)",
+  before: "1999 (Pre)",
+  after: "2006 (Post)",
   outcome: "Households growing non-cereal crops",
   unit: "%",
   values: [34, 64, 25, 29],
@@ -79,6 +79,45 @@ const ROADS: Example = {
 };
 
 const EXPLORE_EXAMPLES = [CARD, CREDIT, ROADS];
+
+const DIAGNOSTIC_QUESTIONS: Record<string, Array<{ statement: string; answer: boolean; why: string }>> = {
+  [CARD.id]: [
+    {
+      statement: "New Jersey’s before-and-after employment change alone identifies the effect of the minimum-wage increase.",
+      answer: false,
+      why: "New Jersey employment could also have changed because of other factors occurring over time. DiD uses Pennsylvania’s change to account for those time-related changes.",
+    },
+    {
+      statement: "Under parallel trends, Pennsylvania’s employment change can be applied to New Jersey’s pre-policy employment to estimate New Jersey’s counterfactual.",
+      answer: true,
+      why: "This estimates what New Jersey employment would have been after the policy if the minimum wage had not increased.",
+    },
+  ],
+  [CREDIT.id]: [
+    {
+      statement: "The wage change in districts served by affected lenders alone identifies the effect of the credit contraction.",
+      answer: false,
+      why: "Wages in those districts could also have changed because of other factors occurring over time. DiD uses the wage change in districts served by unaffected lenders to account for those changes.",
+    },
+    {
+      statement: "Under parallel trends, the wage change in districts served by unaffected lenders can be applied to the affected districts’ pre-policy wage to estimate their counterfactual.",
+      answer: true,
+      why: "This estimates what wages in the affected districts would have been after the credit contraction if their lenders had not been affected.",
+    },
+  ],
+  [ROADS.id]: [
+    {
+      statement: "The change in non-cereal crop cultivation in villages receiving roads alone identifies the effect of the road program.",
+      answer: false,
+      why: "Crop choices in those villages could also have changed because of other factors occurring over time. DiD uses the change in eligible villages without roads to account for those changes.",
+    },
+    {
+      statement: "Under parallel trends, the change in eligible villages without roads can be applied to the pre-policy outcome of villages receiving roads to estimate their counterfactual.",
+      answer: true,
+      why: "This estimates what non-cereal crop cultivation in the road villages would have been in the post period if they had not received roads.",
+    },
+  ],
+};
 
 const STEPS = [
   {
@@ -174,6 +213,8 @@ function OutcomeGraph({
   const showCounterfactual = reveal >= 5;
   const showEffect = reveal >= 6;
   const effectMidY = (y(t1) + y(counterfactual)) / 2;
+  const counterfactualLabelY = y(counterfactual) > 90 ? y(counterfactual) - 14 : y(counterfactual) + 20;
+  const trueCounterfactualLabelY = y(trueCounterfactual) > 258 ? y(trueCounterfactual) - 14 : y(trueCounterfactual) + 20;
 
   return (
     <figure className="chart-shell">
@@ -194,7 +235,7 @@ function OutcomeGraph({
         })}
         <line x1="76" x2="548" y1="286" y2="286" className="axis-line" />
         <text x="19" y="173" textAnchor="middle" transform="rotate(-90 19 173)" className="y-axis-title">{example.outcome}</text>
-        <text x="306" y="40" textAnchor="middle" className="policy-label">policy / exposure</text>
+        <text x="306" y="40" textAnchor="middle" className="policy-label">policy</text>
         <line x1="306" x2="306" y1="48" y2="282" className="policy-line" />
         <text x={x0} y="318" textAnchor="middle" className="axis-title">{example.before}</text>
         <text x={x1} y="318" textAnchor="middle" className="axis-title">{example.after}</text>
@@ -215,10 +256,10 @@ function OutcomeGraph({
         {showC1 && <text x={x1 + 10} y={y(c1) - 8} className="value-label comparison-text">{fmt(c1, example.unit)}</text>}
 
         {showCounterfactual && <circle cx={x1} cy={y(counterfactual)} r="8" className="counterfactual-point" />}
-        {showCounterfactual && <text x={x1 - 12} y={y(counterfactual) + 5} textAnchor="end" className="value-label counterfactual-text">Counterfactual {fmt(counterfactual, example.unit)}</text>}
+        {showCounterfactual && <text x={x1 - 12} y={counterfactualLabelY} textAnchor="end" className="value-label counterfactual-text">Counterfactual {fmt(counterfactual, example.unit)}</text>}
 
         {untreatedChange !== undefined && !pathsMatch && <circle cx={x1} cy={y(trueCounterfactual)} r="7" className="true-counterfactual-point" />}
-        {untreatedChange !== undefined && !pathsMatch && <text x={x1 - 12} y={y(trueCounterfactual) + 18} textAnchor="end" className="value-label true-text">Counterfactual when the parallel trends assumption is violated {fmt(trueCounterfactual, example.unit)}</text>}
+        {untreatedChange !== undefined && !pathsMatch && <text x={x1 - 12} y={trueCounterfactualLabelY} textAnchor="end" className="value-label true-text">Counterfactual when parallel trends is violated {fmt(trueCounterfactual, example.unit)}</text>}
 
         {showEffect && (
           <g className="effect-bracket">
@@ -228,7 +269,6 @@ function OutcomeGraph({
             <text x="536" y={effectMidY - 3}>β</text>
             <path d={`M536 ${effectMidY - 15} L540 ${effectMidY - 18} L544 ${effectMidY - 15}`} className="svg-beta-hat" />
             <text x="548" y={effectMidY - 3}>= {fmtDifference((t1 - t0) - comparisonChange, example.unit)}</text>
-            <text x="536" y={effectMidY + 11}>(DiD estimate)</text>
           </g>
         )}
       </svg>
@@ -252,6 +292,12 @@ function GuidedLesson() {
 
   return (
     <section id="guided" className="lesson-section" aria-labelledby="guided-title">
+      <div className="section-heading guided-heading">
+        <div>
+          <p className="eyebrow">01 · Guided case</p>
+          <h2 id="guided-title">Build the DiD estimate step by step</h2>
+        </div>
+      </div>
       <div className="progress-row" aria-label={`Lesson step ${step + 1} of ${STEPS.length}`}>
         {STEPS.map((_, index) => (
           <button key={index} className={index === step ? "progress-step active" : index < step ? "progress-step done" : "progress-step"} onClick={() => move(index)} aria-label={`Go to step ${index + 1}`} aria-current={index === step ? "step" : undefined}>
@@ -262,7 +308,7 @@ function GuidedLesson() {
 
       <div className="lesson-grid">
         <div>
-          <h3 id="guided-title">{CARD.title}</h3>
+          <h3>{CARD.title}</h3>
           <p className="policy-copy">{CARD.policy}</p>
           <OutcomeGraph example={CARD} values={CARD.values} reveal={step} />
           <p className="source-note">{CARD.note}</p>
@@ -277,8 +323,13 @@ function GuidedLesson() {
           {step === 5 && (
             <div className="formula-card worked-counterfactual">
               <p>Estimated counterfactual under parallel trends</p>
-              <strong>20.4 − 2.1 = 18.3 FTE</strong>
-              <span>Unobserved: New Jersey baseline + Pennsylvania change</span>
+              <div className="counterfactual-formula">
+                <span className="counterfactual-formula-left">Ê[Y<sub>i0</sub><sup>post</sup> | D<sub>i</sub> = 1]</span>
+                <span>= E[Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 1]</span>
+                <span className="counterfactual-formula-indent">+ (E[Y<sub>i0</sub><sup>post</sup> | D<sub>i</sub> = 0] − E[Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 0])</span>
+              </div>
+              <strong>20.4 + (21.2 − 23.3)</strong>
+              <span>20.4 − 2.1 = 18.3 FTE</span>
             </div>
           )}
 
@@ -291,9 +342,8 @@ function GuidedLesson() {
                 <span className="did-formula-operator">−</span>
                 <span className="math-group">[E(Y<sub>i0</sub><sup>post</sup> | D<sub>i</sub> = 0) − E(Y<sub>i0</sub><sup>pre</sup> | D<sub>i</sub> = 0)]</span>
               </div>
-              <strong>(21.0 − 20.4) − (21.2 − 23.3)</strong>
-              <span>= 0.6 − (−2.1) = 2.7 FTE</span>
-              <small>D<sub>i</sub> = 1: New Jersey · D<sub>i</sub> = 0: Pennsylvania</small>
+              <strong><BetaHat /><sub>DiD</sub> = (21 − 20.4) − (21.2 − 23.3)</strong>
+              <span><BetaHat /><sub>DiD</sub> = 0.6 − (−2.1) = 2.7 FTE</span>
             </div>
           )}
 
@@ -309,17 +359,17 @@ function GuidedLesson() {
           <article>
             <span>Post-only</span>
             <strong>−0.2 FTE</strong>
-            <p>Compares the two states after the policy: New Jersey 21.0 − Pennsylvania 21.2 = −0.2 FTE. It ignores their pre-policy difference.</p>
+            <p>Compares employment in New Jersey and Pennsylvania after the policy. Because the states began at different employment levels, the post-policy gap may reflect both their pre-existing difference and the policy’s effect.</p>
           </article>
           <article>
             <span>New Jersey before–after</span>
-            <strong>+0.6 FTE</strong>
-            <p>The change may reflect both the policy effect and anything else that changed over time.</p>
+            <strong>0.6 FTE</strong>
+            <p>Shows how employment changed in New Jersey, but the change may also reflect other factors that changed over time.</p>
           </article>
           <article className="selected-estimator">
             <span>Difference in differences</span>
-            <strong>+2.7 FTE</strong>
-            <p>Subtracts Pennsylvania’s −2.1 FTE change from New Jersey’s +0.6 FTE change: 0.6 − (−2.1) = 2.7 FTE.</p>
+            <strong>2.7 FTE</strong>
+            <p>Uses both states and both periods to estimate the policy effect.</p>
           </article>
         </div>
       )}
@@ -327,11 +377,15 @@ function GuidedLesson() {
   );
 }
 
-function ExploreCases() {
-  const [selectedId, setSelectedId] = useState(CARD.id);
+function ExploreCases({ selectedId, onSelectedIdChange }: { selectedId: string; onSelectedIdChange: (id: string) => void }) {
   const selected = EXPLORE_EXAMPLES.find((example) => example.id === selectedId) ?? CARD;
   const [values, setValues] = useState<[number, number, number, number]>(CARD.values);
   const [trendDeviation, setTrendDeviation] = useState(0);
+
+  useEffect(() => {
+    setValues(selected.values);
+    setTrendDeviation(0);
+  }, [selected]);
 
   const reset = () => {
     setValues(selected.values);
@@ -339,9 +393,7 @@ function ExploreCases() {
   };
 
   const selectExample = (example: Example) => {
-    setSelectedId(example.id);
-    setValues(example.values);
-    setTrendDeviation(0);
+    onSelectedIdChange(example.id);
   };
 
   const [t0, t1, c0, c1] = values;
@@ -427,13 +479,13 @@ function ExploreCases() {
   );
 }
 
-function QuickDiagnostic() {
+function QuickDiagnostic({ selectedId, onSelectedIdChange }: { selectedId: string; onSelectedIdChange: (id: string) => void }) {
   const [answers, setAnswers] = useState<Record<number, boolean | null>>({});
+  const selected = EXPLORE_EXAMPLES.find((example) => example.id === selectedId) ?? CARD;
   const questions = useMemo(() => [
     { statement: "Treated and comparison groups must begin at the same outcome level.", answer: false, why: "The groups may begin at different average outcome levels because DiD compares their changes over time, not their levels." },
-    { statement: "Similar pre-treatment trends prove what the post-treatment counterfactual would have been.", answer: false, why: "Similar trends before treatment can make the parallel-trends assumption more plausible, but they cannot reveal or prove the unobserved post-treatment counterfactual." },
-    { statement: "A shock affecting only the treated group at the policy date can bias a DiD estimate.", answer: true, why: "If another New Jersey-specific change occurred at the same time as the wage increase, DiD could not separate its effect from the effect of the minimum-wage policy." },
-  ], []);
+    ...(DIAGNOSTIC_QUESTIONS[selected.id] ?? DIAGNOSTIC_QUESTIONS[CARD.id]),
+  ], [selected.id]);
 
   return (
     <section id="quick-check" className="lesson-section concepts-section" aria-labelledby="quick-check-title">
@@ -441,6 +493,23 @@ function QuickDiagnostic() {
         <div>
           <p className="eyebrow">03 · Quick diagnostic</p>
           <h2 id="quick-check-title">Check your DiD intuition</h2>
+        </div>
+      </div>
+
+      <div className="diagnostic-picker" aria-label="Choose the example for the diagnostic questions">
+        <span>Questions based on:</span>
+        <div role="group" aria-label="Diagnostic example">
+          {EXPLORE_EXAMPLES.map((example) => (
+            <button
+              key={example.id}
+              type="button"
+              className={selected.id === example.id ? "diagnostic-choice selected" : "diagnostic-choice"}
+              aria-pressed={selected.id === example.id}
+              onClick={() => onSelectedIdChange(example.id)}
+            >
+              {example.tabLabel}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -466,8 +535,10 @@ function QuickDiagnostic() {
 }
 
 export default function Home() {
+  const [selectedExampleId, setSelectedExampleId] = useState(CARD.id);
+
   return (
-    <main data-version="17">
+    <main data-version="18">
       <header className="site-header">
         <div className="brand-group"><a className="brand" href="#top" aria-label="DiD Lab home"><span className="brand-mark">ΔΔ</span><span className="brand-title">DiD Lab</span></a><span className="course-code">for ARE/ECN 115A</span></div>
         <nav aria-label="Lesson navigation">
@@ -507,21 +578,21 @@ export default function Home() {
       </section>
 
       <section id="study-background" className="study-background" aria-labelledby="study-background-title">
-        <div>
+        <div className="study-background-intro">
           <p className="eyebrow">The study</p>
           <h2 id="study-background-title">Did raising New Jersey’s minimum wage reduce fast-food employment?</h2>
-        </div>
-        <div className="study-background-copy">
           <p>Card and Krueger studied New Jersey’s April 1992 minimum-wage increase. They compared employment in New Jersey fast-food restaurants with employment in neighboring Pennsylvania, where the minimum wage did not change. <strong>This basic DiD design has exactly two groups and two time periods:</strong> New Jersey restaurants are the treated group and Pennsylvania restaurants are the comparison group; Feb–Mar 1992 is the pre-policy period and Nov–Dec 1992 is the post-policy period.</p>
           <a className="button ghost study-article-link" href={CARD.source} target="_blank" rel="noreferrer">{CARD.sourceLabel} <span aria-hidden="true">↗</span></a>
+        </div>
+        <div className="study-background-copy">
           <div className="background-variables" aria-label="Study treatment and outcome">
-            <div><span>Treatment-group indicator</span><strong><i>D</i><sub>i</sub></strong><p><i>D</i><sub>i</sub> = 1 for New Jersey restaurants, the group that receives the wage increase in the post-policy period. <i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants, the comparison group. New Jersey restaurants belong to the treated group in both periods, but the policy is not in effect during the pre-policy period.</p></div>
-            <div><span>Observed outcome</span><strong><i>Y</i><sub>i</sub><sup>t</sup></strong><p><i>Y</i><sub>i</sub><sup>t</sup> is full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>, where <i>t</i> is either pre or post. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
+            <div><span>Treatment-group indicator</span><strong><i>D</i><sub>i</sub></strong><p><i>D</i><sub>i</sub> = 1 for New Jersey restaurants.<br /><i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants.</p></div>
+            <div><span>Outcome</span><strong><i>Y</i><sub>i</sub><sup>t</sup></strong><p><i>Y</i><sub>i</sub><sup>t</sup> is full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>, where <i>t</i> is either pre or post. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
           </div>
           <div className="notation-note" aria-label="Potential-outcomes notation">
             <span>Potential-outcomes notation</span>
             <p><i>Y</i><sub>i0</sub><sup>t</sup> is restaurant <i>i</i>’s potential employment in period <i>t</i> without the policy; <i>Y</i><sub>i1</sub><sup>t</sup> is its potential employment with the policy. Before the wage increase, both groups are observed without the policy. Afterward, New Jersey is observed with the policy and Pennsylvania remains without it.</p>
-            <p><strong>For example, E[<i>Y</i><sub>i0</sub><sup>pre</sup> | <i>D</i><sub>i</sub> = 1]</strong> means average pre-policy employment among New Jersey restaurants.</p>
+            <div className="notation-example"><strong>How to read the notation</strong><span>E[<i>Y</i><sub>i0</sub><sup>pre</sup> | <i>D</i><sub>i</sub> = 1]</span><p>Average pre-policy employment among New Jersey restaurants.</p></div>
           </div>
         </div>
       </section>
@@ -533,13 +604,13 @@ export default function Home() {
         </div>
         <div className="why-copy">
           <p>In an ideal experiment, researchers could randomly assign some states to raise their minimum wage and others not to. But the 1992 policy was chosen through New Jersey’s political process—not assigned by researchers.</p>
-          <p>Because the policy was not randomly assigned, New Jersey and Pennsylvania may have had different employment levels even without the wage increase. Comparing their employment only after the policy would therefore not isolate the policy’s effect. DiD instead compares how employment changed in each state before and after the policy. The states may begin at different employment levels, but interpreting the difference in their changes as the policy effect requires assuming that, without the policy, their average employment would have changed by the same amount. This is the parallel-trends assumption.</p>
+          <p>Because the policy was not randomly assigned, New Jersey and Pennsylvania may have had different employment levels even without the wage increase. Comparing their employment only after the policy would therefore not isolate the policy’s effect. DiD instead compares how employment changed in each state before and after the policy. The states do not need to begin at the same employment level. But we must assume that, without the policy, employment would have changed by the same amount in both states. This is the parallel-trends assumption.</p>
         </div>
       </section>
 
       <GuidedLesson />
-      <ExploreCases />
-      <QuickDiagnostic />
+      <ExploreCases selectedId={selectedExampleId} onSelectedIdChange={setSelectedExampleId} />
+      <QuickDiagnostic key={selectedExampleId} selectedId={selectedExampleId} onSelectedIdChange={setSelectedExampleId} />
 
       <footer>
         <div className="footer-brand"><span className="brand-mark">ΔΔ</span><strong>DiD Lab</strong><span className="course-code">for ARE/ECN 115A</span></div>
