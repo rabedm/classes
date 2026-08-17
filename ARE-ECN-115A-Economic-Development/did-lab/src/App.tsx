@@ -594,7 +594,7 @@ export default function Home() {
           <div className="notation-note" aria-label="Potential-outcomes notation">
             <span>Potential-outcomes notation</span>
             <p><i>Y</i><sub>i0</sub><sup>t</sup> is restaurant <i>i</i>’s potential employment in period <i>t</i> without the policy; <i>Y</i><sub>i1</sub><sup>t</sup> is its potential employment with the policy. Before the wage increase, both groups are observed without the policy. Afterward, New Jersey is observed with the policy and Pennsylvania remains without it.</p>
-            <div className="notation-example"><strong>How to read the notation</strong><span>E[<i>Y</i><sub>i0</sub><sup>pre</sup> | <i>D</i><sub>i</sub> = 1]</span><p>Average pre-policy employment among New Jersey restaurants.</p></div>
+            <div className="notation-example"><strong>How to read the notation</strong><span>E[<i>Y</i><sub>i0</sub><sup>Pre</sup> | <i>D</i><sub>i</sub> = 1]</span><p>Average pre-policy employment among New Jersey restaurants.</p></div>
           </div>
         </div>
       </section>
