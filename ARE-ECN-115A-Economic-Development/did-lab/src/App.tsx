@@ -455,10 +455,10 @@ function ExploreCases({ selectedId, onSelectedIdChange }: { selectedId: string; 
 
           <p className="control-heading">Move the four observed outcomes</p>
           {[
-            { label: `${selected.treated} · ${selected.before}`, period: "pre", treatment: 1, potentialOutcome: 0 },
-            { label: `${selected.treated} · ${selected.after}`, period: "post", treatment: 1, potentialOutcome: 1 },
-            { label: `${selected.comparison} · ${selected.before}`, period: "pre", treatment: 0, potentialOutcome: 0 },
-            { label: `${selected.comparison} · ${selected.after}`, period: "post", treatment: 0, potentialOutcome: 0 },
+            { label: `${selected.treated} · ${selected.before}`, period: "Pre", treatment: 1, potentialOutcome: 0 },
+            { label: `${selected.treated} · ${selected.after}`, period: "Post", treatment: 1, potentialOutcome: 1 },
+            { label: `${selected.comparison} · ${selected.before}`, period: "Pre", treatment: 0, potentialOutcome: 0 },
+            { label: `${selected.comparison} · ${selected.after}`, period: "Post", treatment: 0, potentialOutcome: 0 },
           ].map(({ label, period, treatment, potentialOutcome }, index) => (
             <label className="range-control" key={label}>
               <span className="control-label"><span>{label}<em>E[Y<sub>i{potentialOutcome}</sub><sup>{period}</sup> | D<sub>i</sub> = {treatment}]</em></span><b>{fmt(values[index], selected.unit)}</b></span>
