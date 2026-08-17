@@ -589,7 +589,7 @@ export default function Home() {
         <div className="study-background-copy">
           <div className="background-variables" aria-label="Study treatment and outcome">
             <div><span>Treatment-group indicator</span><strong><i>D</i><sub>i</sub></strong><p><i>D</i><sub>i</sub> = 1 for New Jersey restaurants.<br /><i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants.</p></div>
-            <div><span>Outcome</span><strong><i>Y</i><sub>i</sub><sup>t</sup></strong><p><i>Y</i><sub>i</sub><sup>t</sup> is full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>, where <i>t</i> is either pre or post. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
+            <div><span>Outcome</span><strong><i>Y</i><sub>i</sub><sup>t</sup></strong><p><i>Y</i><sub>i</sub><sup>t</sup> is full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>, where <i>t</i> is either Pre or Post. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
           </div>
           <div className="notation-note" aria-label="Potential-outcomes notation">
             <span>Potential-outcomes notation</span>
