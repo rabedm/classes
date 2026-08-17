@@ -84,7 +84,7 @@ const STEPS = [
   {
     kicker: "The policy problem",
     question: "What would employment in New Jersey restaurants have been without the wage increase?",
-    explanation: "We observe employment after New Jersey raised its minimum wage. To measure the effect, we also need to know what employment would have been in those same restaurants, at the same time, if the wage had not increased. We cannot observe that no-policy outcome directly; it is the counterfactual.",
+    explanation: "We observe employment in New Jersey restaurants before and after the wage increase. To measure the policy’s effect, we also need to know what their post-policy employment would have been if the wage had not increased. We cannot observe this no-policy outcome directly; it is the counterfactual.",
   },
   {
     kicker: "A tempting first answer",
@@ -112,14 +112,14 @@ const STEPS = [
     explanation: "Under parallel trends, we assume that without the policy New Jersey would have experienced the same −2.1 FTE change as Pennsylvania. Applying that change to New Jersey’s 20.4 FTE baseline gives an estimated counterfactual of 18.3 FTE. This outcome is unobserved and cannot be verified directly because New Jersey was actually treated in the post period.",
   },
   {
-    kicker: "Reveal the estimated effect",
-    question: "How far is observed New Jersey employment above its counterfactual?",
-    explanation: "Observed New Jersey employment is 21.0 FTE; its counterfactual is 18.3 FTE. The estimated policy effect is therefore 21.0 − 18.3 = +2.7 FTE employees per restaurant.",
+    kicker: "Estimate the policy effect",
+    question: "What is the estimated effect of New Jersey’s minimum-wage increase?",
+    explanation: "Under the parallel-trends assumption, New Jersey’s estimated counterfactual employment is 18.3 FTE. Its observed post-policy employment is 21.0 FTE. The estimated policy effect is the difference between them: 21.0 − 18.3 = +2.7 FTE employees per restaurant.",
   },
   {
-    kicker: "Name the estimator",
-    question: "Why is this a difference in differences?",
-    explanation: "First, calculate the change from pre to post in each state. Then subtract Pennsylvania’s change from New Jersey’s change. The result is the +2.7 FTE estimated policy effect.",
+    kicker: "The DiD estimator",
+    question: "How can we calculate the estimated effect from the four observed averages?",
+    explanation: "First calculate the change in employment from pre to post for each state. Then subtract Pennsylvania’s change from New Jersey’s change. This produces the same +2.7 FTE estimated policy effect.",
   },
 ];
 
@@ -134,7 +134,14 @@ function fmtDifference(value: number, unit: string) {
 }
 
 function BetaHat() {
-  return <span className="beta-hat" role="img" aria-label="beta hat"><span aria-hidden="true">β</span></span>;
+  return (
+    <span className="beta-hat" role="img" aria-label="beta hat">
+      <svg viewBox="0 0 24 28" aria-hidden="true">
+        <path d="M5 7 L12 2 L19 7" />
+        <text x="12" y="25" textAnchor="middle">β</text>
+      </svg>
+    </span>
+  );
 }
 
 function OutcomeGraph({
@@ -160,7 +167,8 @@ function OutcomeGraph({
   const max = Math.max(baseMax, Math.ceil((Math.max(...plottedValues) + 0.2) * 10) / 10);
   const y = (v: number) => 286 - ((v - min) / (max - min)) * 226;
   const pathsMatch = untreatedChange !== undefined && Math.abs(untreatedChange - comparisonChange) < 0.051;
-  const showT1 = reveal >= 1;
+  const showT1Point = reveal >= 0;
+  const showTreatedLine = reveal >= 1;
   const showC1 = reveal >= 2;
   const showC0 = reveal >= 2;
   const showCounterfactual = reveal >= 5;
@@ -191,15 +199,15 @@ function OutcomeGraph({
         <text x={x0} y="318" textAnchor="middle" className="axis-title">{example.before}</text>
         <text x={x1} y="318" textAnchor="middle" className="axis-title">{example.after}</text>
 
-        {showT1 && <line x1={x0} y1={y(t0)} x2={x1} y2={y(t1)} className="treated-line" />}
+        {showTreatedLine && <line x1={x0} y1={y(t0)} x2={x1} y2={y(t1)} className="treated-line" />}
         {showC0 && showC1 && <line x1={x0} y1={y(c0)} x2={x1} y2={y(c1)} className="comparison-line" />}
         {showCounterfactual && <line x1={x0} y1={y(t0)} x2={x1} y2={y(counterfactual)} className="counterfactual-line" />}
         {untreatedChange !== undefined && !pathsMatch && <line x1={x0} y1={y(t0)} x2={x1} y2={y(trueCounterfactual)} className="true-counterfactual-line" />}
 
         <circle cx={x0} cy={y(t0)} r="4" className="treated-point" />
         <text x={x0 - 8} y={y(t0) + 4} textAnchor="end" className="value-label treated-text">{fmt(t0, example.unit)}</text>
-        {showT1 && <circle cx={x1} cy={y(t1)} r="4" className="treated-point" />}
-        {showT1 && <text x={x1 + 10} y={y(t1) + 16} className="value-label treated-text">{fmt(t1, example.unit)}</text>}
+        {showT1Point && <circle cx={x1} cy={y(t1)} r="4" className="treated-point" />}
+        {showT1Point && <text x={x1 + 10} y={y(t1) + 16} className="value-label treated-text">{fmt(t1, example.unit)}</text>}
 
         {showC0 && <rect x={x0 - 4} y={y(c0) - 4} width="8" height="8" rx="1" className="comparison-point" />}
         {showC0 && <text x={x0 - 8} y={y(c0) + 4} textAnchor="end" className="value-label comparison-text">{fmt(c0, example.unit)}</text>}
@@ -256,10 +264,6 @@ function GuidedLesson() {
         <div>
           <h3 id="guided-title">{CARD.title}</h3>
           <p className="policy-copy">{CARD.policy}</p>
-          <div className="study-setup" aria-label="Study variables">
-            <div><span>Treatment</span><strong>New Jersey’s minimum-wage increase</strong><small><i>D</i><sub>i</sub> = 1 for New Jersey restaurants; 0 for Pennsylvania restaurants</small></div>
-            <div><span>Outcome</span><strong>Employment per restaurant</strong><small><i>Y</i><sub>it</sub> = full-time-equivalent employment in restaurant <i>i</i> at time <i>t</i></small></div>
-          </div>
           <OutcomeGraph example={CARD} values={CARD.values} reveal={step} />
           <p className="source-note">{CARD.note}</p>
         </div>
@@ -357,8 +361,8 @@ function ExploreCases() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">02 · Explore</p>
-          <h2 id="explore-title">Explore DiD research examples</h2>
-          <p className="section-intro">Revisit the minimum-wage example or explore the credit-market and rural-road studies covered in class. Move each study’s four observed outcomes, then introduce a deviation from parallel trends to see how the counterfactual and the resulting estimate change.</p>
+          <h2 id="explore-title">Explore three DiD examples</h2>
+          <p className="section-intro">Experiment with the minimum-wage example or explore the credit-market and rural-road studies covered in class. Move each study’s four observed outcomes, then introduce a deviation from parallel trends to see how the counterfactual and the resulting estimate change.</p>
         </div>
       </div>
 
@@ -385,7 +389,7 @@ function ExploreCases() {
           <p className="policy-copy">{selected.policy}</p>
           <p className="policy-copy">The orange and green paths show observed outcomes. The <strong>(unobserved) gold line</strong> shows the counterfactual under parallel trends: the treated group’s baseline plus the comparison group’s change. Move the red “Deviation from parallel trends” slider to examine what happens when the parallel trends assumption is violated.</p>
           <OutcomeGraph example={selected} values={values} untreatedChange={untreatedChange} />
-          <p className="source-note">{selected.note} <a href={selected.source} target="_blank" rel="noreferrer">{selected.sourceLabel}</a>.</p>
+          <p className="source-note">{selected.note}{selected.id !== CARD.id && <> <a href={selected.source} target="_blank" rel="noreferrer">{selected.sourceLabel}</a>.</>}</p>
         </div>
 
         <aside className="controls-panel">
@@ -423,51 +427,25 @@ function ExploreCases() {
   );
 }
 
-function Concepts() {
+function QuickDiagnostic() {
   const [answers, setAnswers] = useState<Record<number, boolean | null>>({});
   const questions = useMemo(() => [
-    { statement: "Treated and comparison groups must begin at the same outcome level.", answer: false, why: "Different levels are allowed. DiD needs a credible claim about untreated changes." },
-    { statement: "Similar pre-treatment trends prove what the post-treatment counterfactual would have been.", answer: false, why: "They can make the parallel trends assumption more plausible, but they cannot prove an unobserved post-treatment path." },
-    { statement: "A shock affecting only the treated group at the policy date can bias a DiD estimate.", answer: true, why: "DiD cannot distinguish the policy from another simultaneous shock affecting only the treated group." },
+    { statement: "Treated and comparison groups must begin at the same outcome level.", answer: false, why: "The groups may begin at different average outcome levels because DiD compares their changes over time, not their levels." },
+    { statement: "Similar pre-treatment trends prove what the post-treatment counterfactual would have been.", answer: false, why: "Similar trends before treatment can make the parallel-trends assumption more plausible, but they cannot reveal or prove the unobserved post-treatment counterfactual." },
+    { statement: "A shock affecting only the treated group at the policy date can bias a DiD estimate.", answer: true, why: "If another New Jersey-specific change occurred at the same time as the wage increase, DiD could not separate its effect from the effect of the minimum-wage policy." },
   ], []);
 
   return (
-    <section id="assumptions" className="lesson-section concepts-section" aria-labelledby="assumptions-title">
+    <section id="quick-check" className="lesson-section concepts-section" aria-labelledby="quick-check-title">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">03 · Assumptions</p>
-          <h2 id="assumptions-title">What cancels in DiD—and what can still create bias</h2>
+          <p className="eyebrow">03 · Quick diagnostic</p>
+          <h2 id="quick-check-title">Check your DiD intuition</h2>
         </div>
-      </div>
-
-      <div className="concept-grid">
-        <article>
-          <span className="concept-number">01</span>
-          <h3>Time-invariant outcome differences are removed</h3>
-          <p>New Jersey and Pennsylvania can begin with different average employment levels. When we calculate each state’s change from before to after, a gap that would have remained constant over time drops out algebraically.</p>
-        </article>
-        <article>
-          <span className="concept-number">02</span>
-          <h3>Shared time shocks cancel</h3>
-          <p>Changes affecting both states equally—such as a common seasonal pattern or nationwide recession shock—appear in both first differences and cancel when one change is subtracted from the other.</p>
-        </article>
-        <article className="warning-concept">
-          <span className="concept-number">03</span>
-          <h3>Differential changes do not cancel</h3>
-          <p>A New Jersey-specific demand shock, another policy introduced at the same time, changes in restaurant composition, anticipation, or spillovers can cause untreated employment to change differently across states. These violations can make the DiD estimate differ from the true policy effect.</p>
-        </article>
-      </div>
-
-      <div className="selection-rule">
-        <strong>The precise claim</strong>
-        <p>Taking differences removes <em>time-invariant differences in average outcome levels</em> and common time shocks. It does not solve selection or confounding that makes untreated outcomes change differently across groups. The parallel trends assumption rules out those differential untreated changes.</p>
       </div>
 
       <div className="quiz-block">
-        <div>
-          <p className="panel-kicker">Quick diagnostic</p>
-          <h3>Would you make these claims?</h3>
-        </div>
+        <div><h3>Would you make these claims?</h3></div>
         <div className="quiz-list">
           {questions.map((item, index) => (
             <div className="quiz-item" key={item.statement}>
@@ -495,7 +473,7 @@ export default function Home() {
         <nav aria-label="Lesson navigation">
           <a href="#guided">Guided case</a>
           <a href="#explore">Explore</a>
-          <a href="#assumptions">Assumptions</a>
+          <a href="#quick-check">Quick check</a>
         </nav>
       </header>
 
@@ -537,8 +515,13 @@ export default function Home() {
           <p>Card and Krueger studied New Jersey’s April 1992 minimum-wage increase. They compared employment in New Jersey fast-food restaurants with employment in neighboring Pennsylvania, where the minimum wage did not change. <strong>This basic DiD design has exactly two groups and two time periods:</strong> New Jersey restaurants are the treated group and Pennsylvania restaurants are the comparison group; Feb–Mar 1992 is the pre-policy period and Nov–Dec 1992 is the post-policy period.</p>
           <a className="button ghost study-article-link" href={CARD.source} target="_blank" rel="noreferrer">{CARD.sourceLabel} <span aria-hidden="true">↗</span></a>
           <div className="background-variables" aria-label="Study treatment and outcome">
-            <div><span>Treatment indicator</span><strong><i>D</i><sub>i</sub> = 1</strong><p>Restaurant <i>i</i> is in New Jersey and was exposed to the wage increase. <i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants.</p></div>
-            <div><span>Outcome</span><strong><i>Y</i><sub>it</sub></strong><p><i>Y</i><sub>it</sub> is the observed full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>. In the potential-outcomes notation used below, the 0 or 1 next to <i>i</i> indicates the treatment state—not the time period. Thus, New Jersey is observed as <i>Y</i><sub>i0</sub><sup>pre</sup> before the policy and <i>Y</i><sub>i1</sub><sup>post</sup> afterward, while Pennsylvania is observed under treatment state 0 in both periods. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
+            <div><span>Treatment-group indicator</span><strong><i>D</i><sub>i</sub></strong><p><i>D</i><sub>i</sub> = 1 for New Jersey restaurants, the group that receives the wage increase in the post-policy period. <i>D</i><sub>i</sub> = 0 for Pennsylvania restaurants, the comparison group. New Jersey restaurants belong to the treated group in both periods, but the policy is not in effect during the pre-policy period.</p></div>
+            <div><span>Observed outcome</span><strong><i>Y</i><sub>i</sub><sup>t</sup></strong><p><i>Y</i><sub>i</sub><sup>t</sup> is full-time-equivalent (FTE) employment in restaurant <i>i</i> during period <i>t</i>, where <i>t</i> is either pre or post. One part-time worker counts as 0.5 FTE, so two part-time workers count as one FTE.</p></div>
+          </div>
+          <div className="notation-note" aria-label="Potential-outcomes notation">
+            <span>Potential-outcomes notation</span>
+            <p><i>Y</i><sub>i0</sub><sup>t</sup> is restaurant <i>i</i>’s potential employment in period <i>t</i> without the policy; <i>Y</i><sub>i1</sub><sup>t</sup> is its potential employment with the policy. Before the wage increase, both groups are observed without the policy. Afterward, New Jersey is observed with the policy and Pennsylvania remains without it.</p>
+            <p><strong>For example, E[<i>Y</i><sub>i0</sub><sup>pre</sup> | <i>D</i><sub>i</sub> = 1]</strong> means average pre-policy employment among New Jersey restaurants.</p>
           </div>
         </div>
       </section>
@@ -550,18 +533,13 @@ export default function Home() {
         </div>
         <div className="why-copy">
           <p>In an ideal experiment, researchers could randomly assign some states to raise their minimum wage and others not to. But the 1992 policy was chosen through New Jersey’s political process—not assigned by researchers.</p>
-          <p><i>D</i><sub>i</sub> records whether restaurant <i>i</i> is located in New Jersey, the treated state, or Pennsylvania, the comparison state. A restaurant’s location may be associated with characteristics such as customer demand, urbanization, baseline labor-market conditions, or recession exposure. Those characteristics can also affect employment without the policy, <i>Y</i><sub>it</sub>(0). DiD allows the states to begin at different employment levels, but requires that their average untreated employment would have <strong>changed by the same amount</strong>.</p>
+          <p>Because the policy was not randomly assigned, New Jersey and Pennsylvania may have had different employment levels even without the wage increase. Comparing their employment only after the policy would therefore not isolate the policy’s effect. DiD instead compares how employment changed in each state before and after the policy. The states may begin at different employment levels, but interpreting the difference in their changes as the policy effect requires assuming that, without the policy, their average employment would have changed by the same amount. This is the parallel-trends assumption.</p>
         </div>
       </section>
 
-      <div className="thesis-strip">
-        <span>PARALLEL TRENDS</span>
-        <p>Without the policy, assume average employment in New Jersey would have changed by the same amount as average employment in Pennsylvania.</p>
-      </div>
-
       <GuidedLesson />
       <ExploreCases />
-      <Concepts />
+      <QuickDiagnostic />
 
       <footer>
         <div className="footer-brand"><span className="brand-mark">ΔΔ</span><strong>DiD Lab</strong><span className="course-code">for ARE/ECN 115A</span></div>
