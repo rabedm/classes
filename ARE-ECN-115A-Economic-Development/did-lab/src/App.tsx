@@ -127,7 +127,7 @@ const STEPS = [
   },
   {
     kicker: "A tempting first answer",
-    question: "Employment rose from 20.4 to 21.0. Is +0.6 the policy effect?",
+    question: "Employment rose from 20.4 to 21.0. Is 0.6 the policy effect?",
     explanation: "Not necessarily. A before-and-after change may also reflect a recession, seasonal patterns, or anything else that changed over time.",
   },
   {
@@ -143,7 +143,7 @@ const STEPS = [
   {
     kicker: "Two first differences",
     question: "How did employment change in each state?",
-    explanation: "New Jersey employment changed by +0.6 FTE, while Pennsylvania employment changed by −2.1 FTE. At this point, these are simply two observed changes; we have not yet used Pennsylvania’s change to estimate New Jersey’s counterfactual.",
+    explanation: "New Jersey employment changed by 0.6 FTE, while Pennsylvania employment changed by −2.1 FTE. At this point, these are simply two observed changes; we have not yet used Pennsylvania’s change to estimate New Jersey’s counterfactual.",
   },
   {
     kicker: "Estimate the counterfactual",
@@ -153,12 +153,12 @@ const STEPS = [
   {
     kicker: "Estimate the policy effect",
     question: "What is the estimated effect of New Jersey’s minimum-wage increase?",
-    explanation: "Under the parallel-trends assumption, New Jersey’s estimated counterfactual employment is 18.3 FTE. Its observed post-policy employment is 21.0 FTE. The estimated policy effect is the difference between them: 21.0 − 18.3 = +2.7 FTE employees per restaurant.",
+    explanation: "Under the parallel-trends assumption, New Jersey’s estimated counterfactual employment is 18.3 FTE. Its observed post-policy employment is 21.0 FTE. The estimated policy effect is the difference between them: 21.0 − 18.3 = 2.7 FTE employees per restaurant.",
   },
   {
     kicker: "The DiD estimator",
     question: "How can we calculate the estimated effect from the four observed averages?",
-    explanation: "First calculate the change in employment from pre to post for each state. Then subtract Pennsylvania’s change from New Jersey’s change. This produces the same +2.7 FTE estimated policy effect.",
+    explanation: "First calculate the change in employment from pre to post for each state. Then subtract Pennsylvania’s change from New Jersey’s change. This produces the same 2.7 FTE estimated policy effect.",
   },
 ];
 
@@ -213,7 +213,9 @@ function OutcomeGraph({
   const showCounterfactual = reveal >= 5;
   const showEffect = reveal >= 6;
   const effectMidY = (y(t1) + y(counterfactual)) / 2;
-  const counterfactualLabelY = y(counterfactual) > 90 ? y(counterfactual) - 14 : y(counterfactual) + 20;
+  const counterfactualLabelY = example.id === CARD.id
+    ? y(counterfactual) - 30
+    : y(counterfactual) > 90 ? y(counterfactual) - 14 : y(counterfactual) + 20;
   const trueCounterfactualLabelY = y(trueCounterfactual) > 258 ? y(trueCounterfactual) - 14 : y(trueCounterfactual) + 20;
 
   return (
@@ -274,7 +276,7 @@ function OutcomeGraph({
       </svg>
       <figcaption className="legend" aria-label="Graph legend">
         <span><i className="legend-dot treated-dot" />{example.treated} (Treated)</span>
-        <span><i className="legend-square comparison-square" />{example.comparison} (Comparison)</span>
+        <span><i className="legend-square comparison-square" />{example.comparison} ({example.id === CARD.id ? "Control group" : "Comparison"})</span>
         {(showCounterfactual || untreatedChange !== undefined) && <span><i className="legend-dash" />Counterfactual</span>}
         {untreatedChange !== undefined && !pathsMatch && <span><i className="legend-dash true-dash" />Counterfactual when the parallel trends assumption is violated</span>}
       </figcaption>
